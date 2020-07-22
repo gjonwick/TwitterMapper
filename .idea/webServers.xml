@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="97af797d-1851-439b-8a97-741339b8ba02" name="soft-project" url="http://localhost">
+        <fileTransfer mountedRoot="C:\Users\Planet\Desktop\final-project-starter-master" accessType="MOUNT" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>
