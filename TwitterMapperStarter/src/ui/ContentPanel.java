@@ -14,7 +14,6 @@ public class ContentPanel extends JPanel {
     private JPanel newQueryPanel;
     private JPanel existingQueryList;
     private JMapViewer map;
-
     private Application app;
 
     public ContentPanel(Application app) {

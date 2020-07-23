@@ -14,8 +14,8 @@ import java.util.Random;
  * A UI panel for entering new queries.
  */
 public class NewQueryPanel extends JPanel {
-    private final JTextField newQuery = new JTextField(10);
-    private final JLabel queryLabel = new JLabel("Enter Search: ");
+    private final JTextField newQuery;
+    private final JLabel queryLabel;
     private final JPanel colorSetter;
     private final Application app;
     private Random random;
@@ -24,6 +24,8 @@ public class NewQueryPanel extends JPanel {
         this.app = app;
         this.colorSetter = new JPanel();
 
+        newQuery = new JTextField(10);
+        queryLabel = new JLabel("Enter Search: ");
         random = new Random();
 
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
@@ -102,6 +104,7 @@ public class NewQueryPanel extends JPanel {
 
     private void addQuery(String newQuery) {
         Query query = new Query(newQuery, colorSetter.getBackground(), app.map());
+        //DisplayElement mapDisplay = new MapDisplay(app.map(), query, colorSetter.getBackground());
         app.addQuery(query);
         colorSetter.setBackground(getRandomColor());
     }

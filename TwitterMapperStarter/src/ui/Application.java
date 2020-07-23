@@ -25,71 +25,46 @@ import java.util.Timer;
  * Derived from a JMapViewer demo program written by Jan Peter Stotz
  */
 public class Application extends JFrame {
+
     // The content panel, which contains the entire UI
-    private final ContentPanel contentPanel;
+    private ContentPanel contentPanel;
+
     // The provider of the tiles for the map, we use the Bing source
     private BingAerialTileSource bing;
+
     // All of the active queries
     private List<Query> queries = new ArrayList<>();
+
     // The source of tweets, a TwitterSource, either live or playback
     private TwitterSource twitterSource;
 
-    private void initialize() {
+    private void initializeFields() {
         // To use the live twitter stream, use the following line
-        // twitterSource = new LiveTwitterSource();
+        twitterSource = new LiveTwitterSource();
 
         // To use the recorded twitter stream, use the following line
         // The number passed to the constructor is a speedup value:
         //  1.0 - play back at the recorded speed
         //  2.0 - play back twice as fast
-        twitterSource = new LiveTwitterSource();
+        //twitterSource = new PlaybackTwitterSource(1.0);
 
         queries = new ArrayList<>();
-    }
-
-    /**
-     * A new query has been entered via the User Interface
-     * @param   query   The new query object
-     */
-    public void addQuery(Query query) {
-        queries.add(query);
-        Set<String> allterms = getQueryTerms();
-        twitterSource.setFilterTerms(allterms);
-        contentPanel.addQuery(query);
-        // TODO: This is the place where you should connect the new query to the twitter source
-        twitterSource.addObserver(query);
-    }
-
-    /**
-     * return a list of all terms mentioned in all queries. The live twitter source uses this
-     * to request matching tweets from the Twitter API.
-     * @return
-     */
-    private Set<String> getQueryTerms() {
-        Set<String> ans = new HashSet<>();
-        for (Query q : queries) {
-            ans.addAll(q.getFilter().terms());
-        }
-        return ans;
-    }
-
-    /**
-     * Constructs the {@code Application}.
-     */
-    public Application() {
-        super("Twitter content viewer");
-        setSize(300, 300);
-        initialize();
-
         bing = new BingAerialTileSource();
-
-        // Do UI initialization
         contentPanel = new ContentPanel(this);
+
+
+    }
+
+    private void initGUI(){
+        // Do UI initialization
+        setSize(300, 300);
         setLayout(new BorderLayout());
         add(contentPanel, BorderLayout.CENTER);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+    }
 
+    private void initMapConfig(){
         // Always have map markers showing.
         map().setMapMarkerVisible(true);
         // Always have zoom controls showing,
@@ -99,10 +74,13 @@ public class Application extends JFrame {
 
         // Use the Bing tile provider
         map().setTileSource(bing);
+    }
 
+    private void initBingTimerCalibration(){
         //NOTE This is so that the map eventually loads the tiles once Bing attribution is ready.
         Coordinate coord = new Coordinate(0, 0);
 
+        // Calibrate BingTimer
         Timer bingTimer = new Timer();
         TimerTask bingAttributionCheck = new TimerTask() {
             @Override
@@ -116,6 +94,9 @@ public class Application extends JFrame {
             }
         };
         bingTimer.schedule(bingAttributionCheck, 100, 200);
+    }
+
+    private void initListeners(){
 
         // Set up a motion listener to create a tooltip showing the tweets at the pointer position
         map().addMouseMotionListener(new MouseAdapter() {
@@ -133,7 +114,26 @@ public class Application extends JFrame {
                 map().setToolTipText("<html><img src=" + profilePictureURL + " height=\"42\" width=\"42\">" + tweet + "</html>");
             }
         });
+
+        /* Other listeners go here ... */
     }
+
+
+    /**
+     * Constructs the {@code Application}.
+     */
+    public Application() {
+        super("Twitter content viewer");
+
+        initializeFields();
+        initGUI();
+        initMapConfig();
+        initBingTimerCalibration();
+        initListeners();
+    }
+
+
+
 
     // How big is a single pixel on the map?  We use this to compute which tweet markers
     // are at the current most position.
@@ -194,7 +194,27 @@ public class Application extends JFrame {
         });
     }
 
-    // A query has been deleted, remove all traces of it
+
+
+    /**
+     * A new query has been entered via the User Interface
+     * @param   query   The new query object
+     */
+    public void addQuery(Query query) {
+        queries.add(query);
+        Set<String> allterms = getQueryTerms();
+        twitterSource.setFilterTerms(allterms);
+        contentPanel.addQuery(query);
+        // TODO: This is the place where you should connect the new query to the twitter source
+        twitterSource.addObserver(query);
+    }
+
+
+    /***
+     * The remove button is clicked on a specific query
+     * A query has been deleted, remove all traces of it
+     * @param query The query object we wish to terminate
+     */
     public void terminateQuery(Query query) {
         // TODO: This is the place where you should disconnect the expiring query from the twitter source
         queries.remove(query);
@@ -203,4 +223,20 @@ public class Application extends JFrame {
         query.terminate();
         twitterSource.deleteObserver(query);
     }
+
+
+
+    /**
+     * return a list of all terms mentioned in all queries. The live twitter source uses this
+     * to request matching tweets from the Twitter API.
+     * @return HashSet of query terms
+     */
+    private Set<String> getQueryTerms() {
+        Set<String> ans = new HashSet<>();
+        for (Query q : queries) {
+            ans.addAll(q.getFilter().terms());
+        }
+        return ans;
+    }
+
 }

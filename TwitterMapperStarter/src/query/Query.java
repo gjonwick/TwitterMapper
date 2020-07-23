@@ -61,21 +61,22 @@ public class Query implements Observer {
         map.removeMapMarker(mapMarkerWithImage);
     }
 
-    private void updateMap(Status status){
+    @Override
+    public void update(Observable o, Object arg) {
+        Status status = (Status) arg;
+        if(getFilter().matches(status)){
+            display(status);
+        }
+    }
+
+
+    public void display(Status status) {
         Coordinate coordinate = Util.statusCoordinate(status);
         User user = status.getUser();
         String profileImageURL = user.getProfileImageURL();
         String tweet = status.getText();
         mapMarkerWithImage = new MapMarkerWithImage(getLayer(), coordinate, getColor(), profileImageURL, tweet);
         map.addMapMarker(mapMarkerWithImage);
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        Status status = (Status) arg;
-        if(getFilter().matches(status)){
-            updateMap(status);
-        }
     }
 
     public Color getColor() {
@@ -100,5 +101,7 @@ public class Query implements Observer {
         layer.setVisible(visible);
     }
     public boolean getVisible() { return layer.isVisible(); }
+
+
 }
 
