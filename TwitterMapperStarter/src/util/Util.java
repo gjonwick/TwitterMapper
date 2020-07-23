@@ -13,6 +13,7 @@ import java.net.URL;
  * Helpful methods that don't clearly fit anywhere else.
  */
 public class Util {
+
     public static GeoLocation statusLocation(Status status) {
         GeoLocation bottomRight = status.getPlace().getBoundingBoxCoordinates()[0][0];
         GeoLocation topLeft = status.getPlace().getBoundingBoxCoordinates()[0][2];

@@ -33,7 +33,7 @@ public class Application extends JFrame {
     private BingAerialTileSource bing;
 
     // All of the active queries
-    private List<Query> queries = new ArrayList<>();
+    private List<Query> queries;
 
     // The source of tweets, a TwitterSource, either live or playback
     private TwitterSource twitterSource;
@@ -202,9 +202,9 @@ public class Application extends JFrame {
      */
     public void addQuery(Query query) {
         queries.add(query);
-        Set<String> allterms = getQueryTerms();
-        twitterSource.setFilterTerms(allterms);
-        contentPanel.addQuery(query);
+        //Set<String> allterms = getQueryTerms();
+        twitterSource.setFilterTerms(getQueryTerms());
+        contentPanel.addNewQueryPanel(query);
         // TODO: This is the place where you should connect the new query to the twitter source
         twitterSource.addObserver(query);
     }
@@ -218,8 +218,8 @@ public class Application extends JFrame {
     public void terminateQuery(Query query) {
         // TODO: This is the place where you should disconnect the expiring query from the twitter source
         queries.remove(query);
-        Set<String> allterms = getQueryTerms();
-        twitterSource.setFilterTerms(allterms);
+        //Set<String> allterms = getQueryTerms();
+        twitterSource.setFilterTerms(getQueryTerms());
         query.terminate();
         twitterSource.deleteObserver(query);
     }

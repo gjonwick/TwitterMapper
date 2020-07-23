@@ -52,12 +52,21 @@ public class ContentPanel extends JPanel {
     }
 
     // Add a new query to the set of queries and update the UI to reflect the new query.
-    public void addQuery(Query query) {
-        JPanel newQueryPanel = new JPanel();
-        newQueryPanel.setLayout(new GridBagLayout());
+    public void addNewQueryPanel(Query query) {
+        GridBagConstraints constraints = initGridConstraints();
+        newQueryPanel = buildNewQueryPanel(createColorPanel(query), createRemoveButton(query), createCheckBox(query), constraints);
+        existingQueryList.add(newQueryPanel);
+        validate();
+    }
+
+    private JPanel createColorPanel(Query query){
         JPanel colorPanel = new JPanel();
         colorPanel.setBackground(query.getColor());
         colorPanel.setPreferredSize(new Dimension(30, 30));
+        return colorPanel;
+    }
+
+    private JButton createRemoveButton(Query query){
         JButton removeButton = new JButton("X");
         removeButton.setPreferredSize(new Dimension(30, 20));
         removeButton.addActionListener(new ActionListener() {
@@ -70,10 +79,10 @@ public class ContentPanel extends JPanel {
             }
         });
 
-        GridBagConstraints c = new GridBagConstraints();
-        newQueryPanel.add(colorPanel, c);
+        return removeButton;
+    }
 
-        c = new GridBagConstraints();
+    private JCheckBox createCheckBox(Query query){
         JCheckBox checkbox = new JCheckBox(query.getQueryString());
         checkbox.setSelected(true);
         checkbox.addActionListener(new ActionListener() {
@@ -83,13 +92,23 @@ public class ContentPanel extends JPanel {
             }
         });
         query.setCheckBox(checkbox);
-        c.weightx = 1.0;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        newQueryPanel.add(checkbox, c);
-        newQueryPanel.add(removeButton);
+        return checkbox;
+    }
 
-        existingQueryList.add(newQueryPanel);
-        validate();
+    private GridBagConstraints initGridConstraints(){
+        GridBagConstraints gridConstraints = new GridBagConstraints();
+        gridConstraints.weightx = 1.0;
+        gridConstraints.fill = GridBagConstraints.HORIZONTAL;
+        return gridConstraints;
+    }
+
+    private JPanel buildNewQueryPanel(JPanel colorPanel, JButton removeButton, JCheckBox checkbox, GridBagConstraints gridConstraints){
+        JPanel newQueryPanel = new JPanel();
+        newQueryPanel.setLayout(new GridBagLayout());
+        newQueryPanel.add(colorPanel, gridConstraints);
+        newQueryPanel.add(checkbox, gridConstraints);
+        newQueryPanel.add(removeButton);
+        return newQueryPanel;
     }
 
     public JMapViewer getViewer() {
