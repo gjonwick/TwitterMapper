@@ -178,13 +178,6 @@ public class Application extends JFrame {
         return contentPanel.getViewer();
     }
 
-//    /**
-//     * @param args Application program arguments (which are ignored)
-//     */
-//    public static void main(String[] args) {
-//        new Application().setVisible(true);
-//    }
-
     // Update which queries are visible after any checkBox has been changed
     public void updateVisibility() {
         SwingUtilities.invokeLater(() -> {
@@ -210,12 +203,6 @@ public class Application extends JFrame {
      */
     public void addQuery(Query query) {
         QueryController.getInstance().addQuery(query, contentPanel, twitterSource);
-//        queries.add(query);
-//        //Set<String> allterms = getQueryTerms();
-//        twitterSource.setFilterTerms(getQueryTerms());
-//        contentPanel.addListedQueryPanel(query);
-//        // TODO: This is the place where you should connect the new query to the twitter source
-//        twitterSource.addObserver(query);
     }
 
 
@@ -227,28 +214,8 @@ public class Application extends JFrame {
      */
     public void terminateQuery(Query query) {
         QueryController.getInstance().terminateQuery(query, twitterSource);
-//        // TODO: This is the place where you should disconnect the expiring query from the twitter source
-//        queries.remove(query);
-//        //Set<String> allterms = getQueryTerms();
-//        twitterSource.setFilterTerms(getQueryTerms());
-//        query.terminate();
-//        twitterSource.deleteObserver(query);
     }
 
-
-
-    /**
-     * return a list of all terms mentioned in all queries. The live twitter source uses this
-     * to request matching tweets from the Twitter API.
-     * @return HashSet of query terms
-     */
-    private Set<String> getQueryTerms() {
-        Set<String> ans = new HashSet<>();
-        for (Query q : queries) {
-            ans.addAll(q.getFilter().terms());
-        }
-        return ans;
-    }
 
     public TwitterSource getTwitterSource() {
         return twitterSource;

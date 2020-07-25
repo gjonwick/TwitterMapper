@@ -14,9 +14,13 @@ public class ListedQueryPanel extends JPanel {
     private JButton removeButton;
     private JCheckBox checkBox;
     private Query query;
+    private ContentPanel parentPanel;
+    private Application app;
 
-    public ListedQueryPanel(Query query) {
+    public ListedQueryPanel(Query query, ContentPanel parentPanel, Application app) {
         this.query = query;
+        this.parentPanel = parentPanel;
+        this.app = app;
         buildBasicQueryPanel();
     }
 
@@ -25,6 +29,7 @@ public class ListedQueryPanel extends JPanel {
         addColorPanel(gridConstraints);
         addCheckBox(gridConstraints);
         addRemoveButton();
+        addListenersToQueryPanelComponents();
     }
 
     public void addColorPanel(GridBagConstraints gridConstraints){
@@ -52,6 +57,22 @@ public class ListedQueryPanel extends JPanel {
         gridConstraints.weightx = 1.0;
         gridConstraints.fill = GridBagConstraints.HORIZONTAL;
         return gridConstraints;
+    }
+
+    private void addListenersToQueryPanelComponents(){
+
+        if(removeButton != null){
+            removeButton.addActionListener(e -> {
+                app.terminateQuery(query);
+                parentPanel.getExistingQueryList().remove(this);
+                parentPanel.revalidate();
+            });
+        }
+
+        if(checkBox != null){
+            checkBox.addActionListener(e -> app.updateVisibility());
+        }
+
     }
 
     public JPanel getColorPanel() {

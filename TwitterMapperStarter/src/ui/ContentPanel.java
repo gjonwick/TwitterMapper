@@ -66,32 +66,31 @@ public class ContentPanel extends JPanel {
 
     // Add a new query to the set of queries and update the UI to reflect the new query.
     public void addListedQueryPanel(Query query) {
-        GridBagConstraints constraints = initGridConstraints();
-        ListedQueryPanel listedQueryPanel = new ListedQueryPanel(query);
-        //newQueryPanel = listedQueryPanel.buildBasicQueryPanel(constraints);
-        addListenersToQueryPanelComponents(listedQueryPanel);
+        //GridBagConstraints constraints = initGridConstraints();
+        ListedQueryPanel listedQueryPanel = new ListedQueryPanel(query, this, app);
+        //addListenersToQueryPanelComponents(listedQueryPanel);
         existingQueryList.add(listedQueryPanel);
         validate();
     }
 
-    private void addListenersToQueryPanelComponents(ListedQueryPanel listedQueryPanel){
-        JButton removeButton = listedQueryPanel.getRemoveButton();
-        JCheckBox checkBox = listedQueryPanel.getCheckBox();
-        Query currentQuery = listedQueryPanel.getQuery();
-
-        if(removeButton != null){
-            removeButton.addActionListener(e -> {
-                app.terminateQuery(currentQuery);
-                existingQueryList.remove(listedQueryPanel);
-                revalidate();
-            });
-        }
-
-        if(checkBox != null){
-            checkBox.addActionListener(e -> app.updateVisibility());
-        }
-
-    }
+//    private void addListenersToQueryPanelComponents(ListedQueryPanel listedQueryPanel){
+//        JButton removeButton = listedQueryPanel.getRemoveButton();
+//        JCheckBox checkBox = listedQueryPanel.getCheckBox();
+//        Query currentQuery = listedQueryPanel.getQuery();
+//
+//        if(removeButton != null){
+//            removeButton.addActionListener(e -> {
+//                app.terminateQuery(currentQuery);
+//                existingQueryList.remove(listedQueryPanel);
+//                revalidate();
+//            });
+//        }
+//
+//        if(checkBox != null){
+//            checkBox.addActionListener(e -> app.updateVisibility());
+//        }
+//
+//    }
 
 
     private GridBagConstraints initGridConstraints(){
@@ -105,5 +104,9 @@ public class ContentPanel extends JPanel {
 
     public JMapViewer getViewer() {
         return map;
+    }
+
+    public JPanel getExistingQueryList() {
+        return existingQueryList;
     }
 }

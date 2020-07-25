@@ -25,6 +25,11 @@ public class QueryController implements Iterable<Query>{
         return queries.iterator();
     }
 
+    /**
+     * return a list of all terms mentioned in all queries. The live twitter source uses this
+     * to request matching tweets from the Twitter API.
+     * @return HashSet of query terms
+     */
     private Set<String> getQueryTerms(){
         Set<String> set = new HashSet<>();
         for (Query q : queries){
