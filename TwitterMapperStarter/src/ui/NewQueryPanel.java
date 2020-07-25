@@ -1,6 +1,7 @@
 package ui;
 
 import query.Query;
+import query.QueryDisplay;
 
 import javax.swing.*;
 import java.awt.*;
@@ -75,14 +76,11 @@ public class NewQueryPanel extends JPanel {
                         BorderFactory.createTitledBorder("New Search"),
                         BorderFactory.createEmptyBorder(5,5,5,5)));
 
-        addQueryButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                if (!newQuery.getText().equals("")) {
-                    addQuery(newQuery.getText().toLowerCase());
-                    updateNextQueryColor();
-                    newQuery.setText("");
-                }
+        addQueryButton.addActionListener(e -> {
+            if (!newQuery.getText().equals("")) {
+                addQuery(newQuery.getText().toLowerCase());
+                updateNextQueryColor();
+                newQuery.setText("");
             }
         });
 
@@ -108,7 +106,9 @@ public class NewQueryPanel extends JPanel {
 
     private void addQuery(String newQuery) {
         Query query = new Query(newQuery, colorSetter.getBackground(), app.map());
+        //QueryDisplay queryDisplay= new QueryDisplay(colorSetter.getBackground(), query, app.map(), app.getTwitterSource());
         app.addQuery(query);
+        //app.addQueryDisplay(queryDisplay);
     }
 
     private void updateNextQueryColor(){

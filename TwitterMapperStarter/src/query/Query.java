@@ -19,7 +19,7 @@ import java.util.Observer;
  * A query over the twitter stream.
  * TODO: Task 4: you are to complete this class.
  */
-public class Query implements Observer {
+public class Query implements Observer, DisplayElement {
 
 
 
@@ -35,6 +35,9 @@ public class Query implements Observer {
     private final Filter filter;
     // The checkBox in the UI corresponding to this query (so we can turn it on and off and delete it)
     private JCheckBox checkBox;
+
+    // Current Status
+    private Status status;
 
     private MapMarkerWithImage mapMarkerWithImage;
 
@@ -63,19 +66,29 @@ public class Query implements Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        Status status = (Status) arg;
-        if(getFilter().matches(status)){
-            display(status);
+        if(arg instanceof Status){
+            status = (Status) arg;
+            if(getFilter().matches(status)){
+                mapMarkerWithImage = createNewMapMarker();
+                display();
+            }
         }
     }
 
-
-    public void display(Status status) {
+    /**
+     * Create a new MapMarkerWithImage
+     * @return MapMarkerWithImage object
+     */
+    private MapMarkerWithImage createNewMapMarker(){
         Coordinate coordinate = Util.statusCoordinate(status);
         User user = status.getUser();
         String profileImageURL = user.getProfileImageURL();
         String tweet = status.getText();
-        mapMarkerWithImage = new MapMarkerWithImage(getLayer(), coordinate, getColor(), profileImageURL, tweet);
+        return new MapMarkerWithImage(getLayer(), coordinate, getColor(), profileImageURL, tweet);
+    }
+
+    @Override
+    public void display() {
         map.addMapMarker(mapMarkerWithImage);
     }
 

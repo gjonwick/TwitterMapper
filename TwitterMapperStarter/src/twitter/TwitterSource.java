@@ -36,6 +36,7 @@ public abstract class TwitterSource extends Observable {
     //       it can determine whether the tweet should be displayed
     protected void handleTweet(Status status) {
         setChanged();
+        log(status);
         notifyObservers(status);
     }
 }

@@ -9,6 +9,7 @@ import twitter4j.User;
 import ui.MapMarkerWithImage;
 import util.Util;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.Observable;
 import java.util.Observer;
@@ -22,6 +23,8 @@ public class QueryDisplay implements Observer, DisplayElement{
     private Status status;
     private final Layer layer;
     private MapMarkerWithImage mapMarkerWithImage;
+    // The checkBox in the UI corresponding to this query (so we can turn it on and off and delete it)
+    private JCheckBox checkBox;
 
 
     public QueryDisplay(Color color, Query query, JMapViewer map, Observable observable) {
@@ -75,5 +78,9 @@ public class QueryDisplay implements Observer, DisplayElement{
 
     public MapMarkerWithImage getMapMarkerWithImage() {
         return mapMarkerWithImage;
+    }
+
+    public void setCheckBox(JCheckBox checkBox) {
+        this.checkBox = checkBox;
     }
 }

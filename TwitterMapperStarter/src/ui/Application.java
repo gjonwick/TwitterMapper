@@ -7,10 +7,10 @@ import org.openstreetmap.gui.jmapviewer.interfaces.ICoordinate;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
 import query.Query;
+import query.QueryDisplay;
 import twitter.LiveTwitterSource;
-import twitter.PlaybackTwitterSource;
 import twitter.TwitterSource;
-import util.SphericalGeometry;
+import util.Util;
 
 import javax.swing.*;
 import java.awt.*;
@@ -35,6 +35,9 @@ public class Application extends JFrame {
     // All of the active queries
     private List<Query> queries;
 
+    // All QueryDisplay observers
+    private List<QueryDisplay> queryDisplays;
+
     // The source of tweets, a TwitterSource, either live or playback
     private TwitterSource twitterSource;
 
@@ -49,6 +52,7 @@ public class Application extends JFrame {
         //twitterSource = new PlaybackTwitterSource(1.0);
 
         queries = new ArrayList<>();
+        queryDisplays = new ArrayList<>();
         bing = new BingAerialTileSource();
         contentPanel = new ContentPanel(this);
 
@@ -106,12 +110,14 @@ public class Application extends JFrame {
                 ICoordinate pos = map().getPosition(p);
 
                 List<MapMarker> markers = getMarkersCovering(pos, pixelWidth(p));
-                MapMarker marker = markers.get(markers.size() - 1);
-                MapMarkerWithImage mapMarkerWithImage = (MapMarkerWithImage) marker;
-                String tweet = mapMarkerWithImage.getTweet();
-                String profilePictureURL = mapMarkerWithImage.getProfileImageUrl();
-                // TODO: Use the following method to set the text that appears at the mouse cursor
-                map().setToolTipText("<html><img src=" + profilePictureURL + " height=\"42\" width=\"42\">" + tweet + "</html>");
+                if (!markers.isEmpty()) {
+                    MapMarker marker = markers.get(markers.size() - 1);
+                    MapMarkerWithImage mapMarkerWithImage = (MapMarkerWithImage) marker;
+                    String tweet = mapMarkerWithImage.getTweet();
+                    String profilePictureURL = mapMarkerWithImage.getProfileImageUrl();
+                    // TODO: Use the following method to set the text that appears at the mouse cursor
+                    map().setToolTipText("<html><img src=" + profilePictureURL + " height=\"42\" width=\"42\">" + tweet + "</html>");
+                }
             }
         });
 
@@ -140,7 +146,7 @@ public class Application extends JFrame {
     private double pixelWidth(Point p) {
         ICoordinate center = map().getPosition(p);
         ICoordinate edge = map().getPosition(new Point(p.x + 1, p.y));
-        return SphericalGeometry.distanceBetween(center, edge);
+        return Util.distanceBetween(center, edge);
     }
 
     // Get those layers (of tweet markers) that are visible because their corresponding query is enabled
@@ -160,7 +166,7 @@ public class Application extends JFrame {
         Set<Layer> visibleLayers = getVisibleLayers();
         for (MapMarker m : map().getMapMarkerList()) {
             if (!visibleLayers.contains(m.getLayer())) continue;
-            double distance = SphericalGeometry.distanceBetween(m.getCoordinate(), pos);
+            double distance = Util.distanceBetween(m.getCoordinate(), pos);
             if (distance < m.getRadius() * pixelWidth) {
                 ans.add(m);
             }
@@ -172,12 +178,12 @@ public class Application extends JFrame {
         return contentPanel.getViewer();
     }
 
-    /**
-     * @param args Application program arguments (which are ignored)
-     */
-    public static void main(String[] args) {
-        new Application().setVisible(true);
-    }
+//    /**
+//     * @param args Application program arguments (which are ignored)
+//     */
+//    public static void main(String[] args) {
+//        new Application().setVisible(true);
+//    }
 
     // Update which queries are visible after any checkBox has been changed
     public void updateVisibility() {
@@ -186,8 +192,8 @@ public class Application extends JFrame {
                 System.out.println("Recomputing visible queries");
                 for (Query q : queries) {
                     JCheckBox box = q.getCheckBox();
-                    Boolean state = box.isSelected();
-                    q.setVisible(state);
+                    //Boolean state = box.isSelected();
+                    q.setVisible(box.isSelected());
                 }
                 map().repaint();
             }
@@ -204,10 +210,11 @@ public class Application extends JFrame {
         queries.add(query);
         //Set<String> allterms = getQueryTerms();
         twitterSource.setFilterTerms(getQueryTerms());
-        contentPanel.addNewQueryPanel(query);
+        contentPanel.addListedQueryPanel(query);
         // TODO: This is the place where you should connect the new query to the twitter source
         twitterSource.addObserver(query);
     }
+
 
 
     /***
@@ -239,4 +246,7 @@ public class Application extends JFrame {
         return ans;
     }
 
+    public TwitterSource getTwitterSource() {
+        return twitterSource;
+    }
 }
