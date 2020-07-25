@@ -104,12 +104,10 @@ public class NewQueryPanel extends JPanel {
         });
     }
 
-    private void addQuery(String newQuery) {
-        Query query = new Query(newQuery, colorSetter.getBackground(), app.map());
-        //QueryDisplay queryDisplay= new QueryDisplay(colorSetter.getBackground(), query, app.map(), app.getTwitterSource());
-        app.addQuery(query);
-        //app.addQueryDisplay(queryDisplay);
+    private void addQuery(String newQueryString) {
+        app.handleQueryCreation(newQueryString, colorSetter.getBackground(), app.map(), app.getTwitterSource());
     }
+
 
     private void updateNextQueryColor(){
         colorSetter.setBackground(getRandomColor());

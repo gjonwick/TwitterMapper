@@ -7,6 +7,7 @@ import org.openstreetmap.gui.jmapviewer.interfaces.ICoordinate;
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
 import query.Query;
+import query.QueryController;
 import query.QueryDisplay;
 import twitter.LiveTwitterSource;
 import twitter.TwitterSource;
@@ -41,7 +42,7 @@ public class Application extends JFrame {
     // The source of tweets, a TwitterSource, either live or playback
     private TwitterSource twitterSource;
 
-    private void initializeFields() {
+    private void initializeFieldsAndPanels() {
         // To use the live twitter stream, use the following line
         twitterSource = new LiveTwitterSource();
 
@@ -51,7 +52,6 @@ public class Application extends JFrame {
         //  2.0 - play back twice as fast
         //twitterSource = new PlaybackTwitterSource(1.0);
 
-        queries = new ArrayList<>();
         queryDisplays = new ArrayList<>();
         bing = new BingAerialTileSource();
         contentPanel = new ContentPanel(this);
@@ -131,7 +131,7 @@ public class Application extends JFrame {
     public Application() {
         super("Twitter content viewer");
 
-        initializeFields();
+        initializeFieldsAndPanels();
         initGUI();
         initMapConfig();
         initBingTimerCalibration();
@@ -152,7 +152,7 @@ public class Application extends JFrame {
     // Get those layers (of tweet markers) that are visible because their corresponding query is enabled
     private Set<Layer> getVisibleLayers() {
         Set<Layer> ans = new HashSet<>();
-        for (Query q : queries) {
+        for (Query q : QueryController.getInstance()) {
             if (q.getVisible()) {
                 ans.add(q.getLayer());
             }
@@ -187,19 +187,21 @@ public class Application extends JFrame {
 
     // Update which queries are visible after any checkBox has been changed
     public void updateVisibility() {
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                System.out.println("Recomputing visible queries");
-                for (Query q : queries) {
-                    JCheckBox box = q.getCheckBox();
-                    //Boolean state = box.isSelected();
-                    q.setVisible(box.isSelected());
-                }
-                map().repaint();
+        SwingUtilities.invokeLater(() -> {
+            System.out.println("Recomputing visible queries");
+            for (Query q : QueryController.getInstance()) {
+                JCheckBox box = q.getCheckBox();
+                //Boolean state = box.isSelected();
+                q.setVisible(box.isSelected());
             }
+            map().repaint();
         });
     }
 
+
+    public void handleQueryCreation(String queryString, Color color, JMapViewer map, TwitterSource twitterSource){
+        addQuery(new Query(queryString, color, map, twitterSource));
+    }
 
 
     /**
@@ -207,12 +209,13 @@ public class Application extends JFrame {
      * @param   query   The new query object
      */
     public void addQuery(Query query) {
-        queries.add(query);
-        //Set<String> allterms = getQueryTerms();
-        twitterSource.setFilterTerms(getQueryTerms());
-        contentPanel.addListedQueryPanel(query);
-        // TODO: This is the place where you should connect the new query to the twitter source
-        twitterSource.addObserver(query);
+        QueryController.getInstance().addQuery(query, contentPanel, twitterSource);
+//        queries.add(query);
+//        //Set<String> allterms = getQueryTerms();
+//        twitterSource.setFilterTerms(getQueryTerms());
+//        contentPanel.addListedQueryPanel(query);
+//        // TODO: This is the place where you should connect the new query to the twitter source
+//        twitterSource.addObserver(query);
     }
 
 
@@ -223,12 +226,13 @@ public class Application extends JFrame {
      * @param query The query object we wish to terminate
      */
     public void terminateQuery(Query query) {
-        // TODO: This is the place where you should disconnect the expiring query from the twitter source
-        queries.remove(query);
-        //Set<String> allterms = getQueryTerms();
-        twitterSource.setFilterTerms(getQueryTerms());
-        query.terminate();
-        twitterSource.deleteObserver(query);
+        QueryController.getInstance().terminateQuery(query, twitterSource);
+//        // TODO: This is the place where you should disconnect the expiring query from the twitter source
+//        queries.remove(query);
+//        //Set<String> allterms = getQueryTerms();
+//        twitterSource.setFilterTerms(getQueryTerms());
+//        query.terminate();
+//        twitterSource.deleteObserver(query);
     }
 
 

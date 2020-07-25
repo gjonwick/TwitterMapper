@@ -1,6 +1,7 @@
 package twitter;
 
 import twitter4j.Status;
+import util.Logger;
 import util.ObjectSource;
 
 /**
@@ -33,6 +34,14 @@ public class PlaybackTwitterSource extends TwitterSource {
         this.source = new ObjectSource("data/TwitterCapture.jobj");
         this.threadStarted = false;
 
+    }
+
+    /**
+     * The playback source merely starts the playback thread, it it hasn't been started already
+     */
+    protected void sync() {
+        Logger.notifyPlaybackThreadInitialization(terms);
+        startThread();
     }
 
     private void startThread() {
@@ -80,11 +89,5 @@ public class PlaybackTwitterSource extends TwitterSource {
         t.start();
     }
 
-    /**
-     * The playback source merely starts the playback thread, it it hasn't been started already
-     */
-    protected void sync() {
-        System.out.println("Starting playback thread with " + terms);
-        startThread();
-    }
+
 }

@@ -36,17 +36,21 @@ public class Query implements Observer, DisplayElement {
     // The checkBox in the UI corresponding to this query (so we can turn it on and off and delete it)
     private JCheckBox checkBox;
 
+    private Observable subject;
+
     // Current Status
     private Status status;
 
     private MapMarkerWithImage mapMarkerWithImage;
 
-    public Query(String queryString, Color color, JMapViewer map) {
+    public Query(String queryString, Color color, JMapViewer map, Observable subject) {
         this.queryString = queryString;
         this.filter = Filter.parse(queryString);
         this.color = color;
         this.layer = new Layer(queryString);
         this.map = map;
+        this.subject = subject;
+        subject.addObserver(this);
     }
 
     @Override
@@ -62,6 +66,7 @@ public class Query implements Observer, DisplayElement {
     public void terminate() {
         layer.setVisible(false);
         map.removeMapMarker(mapMarkerWithImage);
+        subject.deleteObserver(this);
     }
 
     @Override

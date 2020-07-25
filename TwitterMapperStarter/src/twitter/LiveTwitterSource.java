@@ -2,6 +2,7 @@ package twitter;
 
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
+import util.Logger;
 
 /**
  * Encapsulates the connection to Twitter
@@ -11,22 +12,28 @@ import twitter4j.conf.ConfigurationBuilder;
  * Implements Observable - each received tweet is signalled to all observers
  */
 public class LiveTwitterSource extends TwitterSource {
+
+    // TwitterStream object used to stream tweets in real time
     private TwitterStream twitterStream;
+
+    // StatusListener object used to listen for incoming tweets
     private StatusListener listener;
 
     public LiveTwitterSource() {
-        initializeTwitterStream();
+        initLiveTwitter();
     }
 
-    protected void sync() {
-        FilterQuery filter = new FilterQuery();
-        // https://stackoverflow.com/questions/21383345/using-multiple-threads-to-get-data-from-twitter-using-twitter4j
-        String[] queriesArray = terms.toArray(new String[0]);
-        filter.track(queriesArray);
+    // Handle live twitter initialization
+    private void initLiveTwitter() {
+        initializeTwitterStream();
+        initializeListener();
+        twitterStream.addListener(listener);
+    }
 
-        System.out.println("Syncing live Twitter stream with " + terms);
-
-        twitterStream.filter(filter);
+    // Create ConfigurationBuilder and pass in necessary credentials to authorize properly, then init TwitterStream.
+    private void initializeTwitterStream(){
+        // Pass the live twitter ConfigurationContext in when constructing TwitterStreamFactory.
+        twitterStream = new TwitterStreamFactory(ConfigContextLiveTwitter.getConfigurationContext()).getInstance();
     }
 
     private void initializeListener() {
@@ -37,21 +44,19 @@ public class LiveTwitterSource extends TwitterSource {
                 if (status.getPlace() != null) {
                     handleTweet(status);
                 }
-           }
+            }
         };
     }
 
-    // Create ConfigurationBuilder and pass in necessary credentials to authorize properly, then create TwitterStream.
-    private void initializeTwitterStream() {
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setOAuthConsumerKey("df7uJ6wNmrE0WHZpbc1BQuXu4")
-                .setOAuthConsumerSecret("1NzNOGmdv1uWHOB7eWqFFkpbTaLTBoUSNNNDuJBCVRtq0KE0DJ")
-                .setOAuthAccessToken("1281247078430191625-fWFCPXrAfU5MKC6ru1g4krLuFi1AjV")
-                .setOAuthAccessTokenSecret("bvudeOcDbzTsB8uBjBTw0WNoCtPjHJw508sSP3guB2WfN");
 
-        // Pass the ConfigurationBuilder in when constructing TwitterStreamFactory.
-        twitterStream = new TwitterStreamFactory(cb.build()).getInstance();
-        initializeListener();
-        twitterStream.addListener(listener);
+    protected void sync() {
+        FilterQuery filter = new FilterQuery();
+        // https://stackoverflow.com/questions/21383345/using-multiple-threads-to-get-data-from-twitter-using-twitter4j
+        String[] queriesArray = terms.toArray(new String[0]);
+        filter.track(queriesArray);
+
+        Logger.notifyLiveTwitterThreadInitialization(terms);
+
+        twitterStream.filter(filter);
     }
 }

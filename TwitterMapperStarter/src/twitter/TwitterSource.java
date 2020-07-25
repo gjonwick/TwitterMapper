@@ -2,21 +2,30 @@ package twitter;
 
 import twitter4j.Status;
 import util.ImageCache;
+import util.Logger;
 
 import java.util.*;
 
 
 public abstract class TwitterSource extends Observable {
-    protected boolean doLogging = true;
+
+    // Flag to check if logging is enabled
+    protected boolean doLogging;
+
     // The set of terms to look for in the stream of tweets
-    protected Set<String> terms = new HashSet<>();
+    protected Set<String> terms;
+
+    protected TwitterSource() {
+        doLogging = true;;
+        terms = new HashSet<>();
+    }
 
     // Called each time a new set of filter terms has been established
     abstract protected void sync();
 
     protected void log(Status status) {
         if (doLogging) {
-            System.out.println(status.getUser().getName() + ": " + status.getText());
+            Logger.logStatusInformation(status);
         }
         ImageCache.getInstance().loadImage(status.getUser().getProfileImageURL());
     }
@@ -39,4 +48,5 @@ public abstract class TwitterSource extends Observable {
         log(status);
         notifyObservers(status);
     }
+
 }
