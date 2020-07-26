@@ -1,7 +1,5 @@
 package filters;
 
-import com.sun.org.apache.xpath.internal.operations.Or;
-
 /**
  * Parse a string in the filter language and return the filter.
  * Throws a SyntaxError exception on failure.
@@ -43,19 +41,19 @@ public class Parser {
         scanner = new Scanner(input);
     }
 
-    public Filter parse() throws SyntaxError {
+    public Filter parse() throws SyntaxException {
         Filter ans = expr();
         if (scanner.peek() != null) {
-            throw new SyntaxError("Extra stuff at end of input");
+            throw new SyntaxException("Extra stuff at end of input");
         }
         return ans;
     }
 
-    private Filter expr() throws SyntaxError {
+    private Filter expr() throws SyntaxException {
         return orexpr();
     }
 
-    private Filter orexpr() throws SyntaxError {
+    private Filter orexpr() throws SyntaxException {
         Filter sub = andexpr();
         String token = scanner.peek();
         while (token != null && token.equals(OR)) {
@@ -71,7 +69,7 @@ public class Parser {
         return sub;
     }
 
-    private Filter andexpr() throws SyntaxError {
+    private Filter andexpr() throws SyntaxException {
         Filter sub = notexpr();
         String token = scanner.peek();
         while (token != null && token.equals(AND)) {
@@ -87,7 +85,7 @@ public class Parser {
         return sub;
     }
 
-    private Filter notexpr() throws SyntaxError {
+    private Filter notexpr() throws SyntaxException {
         String token = scanner.peek();
         if (token.equals(NOT)) {
             scanner.advance();
@@ -98,13 +96,13 @@ public class Parser {
         }
     }
 
-    private Filter prim() throws SyntaxError {
+    private Filter prim() throws SyntaxException {
         String token = scanner.peek();
         if (token.equals(LPAREN)) {
             scanner.advance();
             Filter sub = expr();
             if (!scanner.peek().equals(RPAREN)) {
-                throw new SyntaxError("Expected ')'");
+                throw new SyntaxException("Expected ')'");
             }
             scanner.advance();
             return sub;

@@ -9,40 +9,45 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 
 public class MapMarkerWithImage extends MapMarkerCircle {
-    public static final double defaultMarkerSize = 17.0;
-    public BufferedImage img1;
-    public String tweet1;
+    public static final double defaultMarkerSize;
+
+    public BufferedImage img;
+    public String tweet;
     public String profileImageUrl;
+
+    static {
+        defaultMarkerSize = 17.0;
+    }
 
     public MapMarkerWithImage(Layer layer, Coordinate coordinate, Color color, String profileImageURL, String tweet) {
         super(layer, null, coordinate, defaultMarkerSize, STYLE.FIXED, getDefaultStyle());
         setColor(Color.BLACK);
         setBackColor(color);
-        img1 = Util.imageFromURL(profileImageURL);
-        tweet1 = tweet;
+        img = Util.imageFromURL(profileImageURL);
+        this.tweet = tweet;
         profileImageUrl = profileImageURL;
     }
 
+    @Override
+    public void paint(Graphics graphics, Point position, int radius) {
+        int size = radius * 2;
+        if (graphics instanceof Graphics2D && this.getBackColor() != null) {
+            Graphics2D graphics2D = (Graphics2D) graphics;
+            Composite oldComposite = graphics2D.getComposite();
+            graphics2D.setComposite(AlphaComposite.getInstance(3));
+            graphics2D.setPaint(this.getBackColor());
+            graphics.fillOval(position.x - radius, position.y - radius, size, size);
+            graphics2D.setComposite(oldComposite);
+            graphics.drawImage(img, position.x - 10, position.y - 10, 20,20,null);
+        }
+    }
+
     public String getTweet() {
-        return this.tweet1;
+        return this.tweet;
     }
 
     public String getProfileImageUrl() {
         return this.profileImageUrl;
-    }
-
-    @Override
-    public void paint(Graphics g, Point position, int radius) {
-        int size = radius * 2;
-        if (g instanceof Graphics2D && this.getBackColor() != null) {
-            Graphics2D g2 = (Graphics2D) g;
-            Composite oldComposite = g2.getComposite();
-            g2.setComposite(AlphaComposite.getInstance(3));
-            g2.setPaint(this.getBackColor());
-            g.fillOval(position.x - radius, position.y - radius, size, size);
-            g2.setComposite(oldComposite);
-            g.drawImage(img1, position.x - 10, position.y - 10, 20,20,null);
-        }
     }
 
 }

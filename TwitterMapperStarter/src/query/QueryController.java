@@ -6,8 +6,9 @@ import ui.ContentPanel;
 import java.util.*;
 
 public class QueryController implements Iterable<Query>{
-    private List<Query> queries;
-    private static QueryController instance;
+
+    private final List<Query> queries;
+    private static QueryController instance = null;
 
     public static QueryController getInstance(){
         if(instance == null){
@@ -20,20 +21,29 @@ public class QueryController implements Iterable<Query>{
         queries = new ArrayList<>();
     }
 
+
+    /**
+     * Encapsulate Queries collection. The client is forced to use the methods provided by QueryController, rather than those provided by List
+     * @return UnmodifiableList of Queries
+     */
     @Override
     public Iterator<Query> iterator() {
+        List<Query> queries = Collections.unmodifiableList(this.queries);
         return queries.iterator();
     }
+
 
     /**
      * return a list of all terms mentioned in all queries. The live twitter source uses this
      * to request matching tweets from the Twitter API.
      * @return HashSet of query terms
      */
-    private Set<String> getQueryTerms(){
+    public Set<String> getQueryTerms(){
         Set<String> set = new HashSet<>();
         for (Query q : queries){
-            set.addAll(q.getFilter().terms());
+            if (q.getFilter() != null){
+                set.addAll(q.getFilter().terms());
+            }
         }
         return set;
     }
@@ -49,4 +59,5 @@ public class QueryController implements Iterable<Query>{
         twitterSource.setFilterTerms(getQueryTerms());
         query.terminate();
     }
+
 }

@@ -8,6 +8,11 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * The panel representing an existing query.
+ * It contains the respective GUI attached to an existing query.
+ * Notifies app about different operations on an existing query.
+ */
 public class ListedQueryPanel extends JPanel {
 
     private JPanel colorPanel;

@@ -6,7 +6,6 @@ import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.Layer;
 import twitter4j.Status;
 import twitter4j.User;
-import ui.MapMarkerSimple;
 import ui.MapMarkerWithImage;
 import util.Util;
 
@@ -73,8 +72,8 @@ public class Query implements Observer, DisplayElement {
     public void update(Observable o, Object arg) {
         if(arg instanceof Status){
             status = (Status) arg;
+            mapMarkerWithImage = createNewMapMarker();
             if(getFilter().matches(status)){
-                mapMarkerWithImage = createNewMapMarker();
                 display();
             }
         }
@@ -120,6 +119,16 @@ public class Query implements Observer, DisplayElement {
     }
     public boolean getVisible() { return layer.isVisible(); }
 
+    public JMapViewer getMap() {
+        return map;
+    }
 
+    public Status getStatus() {
+        return status;
+    }
+
+    public MapMarkerWithImage getMapMarkerWithImage() {
+        return mapMarkerWithImage;
+    }
 }
 

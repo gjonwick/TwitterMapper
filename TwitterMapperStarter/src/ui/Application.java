@@ -8,7 +8,6 @@ import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import org.openstreetmap.gui.jmapviewer.tilesources.BingAerialTileSource;
 import query.Query;
 import query.QueryController;
-import query.QueryDisplay;
 import twitter.LiveTwitterSource;
 import twitter.TwitterSource;
 import util.Util;
@@ -24,6 +23,10 @@ import java.util.Timer;
 /**
  * The Twitter viewer application
  * Derived from a JMapViewer demo program written by Jan Peter Stotz
+ * Application class acts as a "middleware" controller.
+ * It handles different operations, and delegates them to specific classes.
+ * Mostly responsible for connecting the panels, the queries, and the map with each other.
+ * Contains helper methods used to initialize the main GUI.
  */
 public class Application extends JFrame {
 
@@ -35,9 +38,6 @@ public class Application extends JFrame {
 
     // All of the active queries
     private List<Query> queries;
-
-    // All QueryDisplay observers
-    private List<QueryDisplay> queryDisplays;
 
     // The source of tweets, a TwitterSource, either live or playback
     private TwitterSource twitterSource;
@@ -51,8 +51,6 @@ public class Application extends JFrame {
         //  1.0 - play back at the recorded speed
         //  2.0 - play back twice as fast
         //twitterSource = new PlaybackTwitterSource(1.0);
-
-        queryDisplays = new ArrayList<>();
         bing = new BingAerialTileSource();
         contentPanel = new ContentPanel(this);
 
@@ -108,21 +106,17 @@ public class Application extends JFrame {
             public void mouseMoved(MouseEvent e) {
                 Point p = e.getPoint();
                 ICoordinate pos = map().getPosition(p);
-
                 List<MapMarker> markers = getMarkersCovering(pos, pixelWidth(p));
+
                 if (!markers.isEmpty()) {
-                    MapMarker marker = markers.get(markers.size() - 1);
-                    MapMarkerWithImage mapMarkerWithImage = (MapMarkerWithImage) marker;
-                    String tweet = mapMarkerWithImage.getTweet();
-                    String profilePictureURL = mapMarkerWithImage.getProfileImageUrl();
-                    // TODO: Use the following method to set the text that appears at the mouse cursor
-                    map().setToolTipText("<html><img src=" + profilePictureURL + " height=\"42\" width=\"42\">" + tweet + "</html>");
+                    drawMarkers(markers);
                 }
             }
         });
 
         /* Other listeners go here ... */
     }
+
 
 
     /**
@@ -139,61 +133,16 @@ public class Application extends JFrame {
     }
 
 
-
-
-    // How big is a single pixel on the map?  We use this to compute which tweet markers
-    // are at the current most position.
-    private double pixelWidth(Point p) {
-        ICoordinate center = map().getPosition(p);
-        ICoordinate edge = map().getPosition(new Point(p.x + 1, p.y));
-        return Util.distanceBetween(center, edge);
-    }
-
-    // Get those layers (of tweet markers) that are visible because their corresponding query is enabled
-    private Set<Layer> getVisibleLayers() {
-        Set<Layer> ans = new HashSet<>();
-        for (Query q : QueryController.getInstance()) {
-            if (q.getVisible()) {
-                ans.add(q.getLayer());
-            }
-        }
-        return ans;
-    }
-
-    // Get all the markers at the given map position, at the current map zoom setting
-    private List<MapMarker> getMarkersCovering(ICoordinate pos, double pixelWidth) {
-        List<MapMarker> ans = new ArrayList<>();
-        Set<Layer> visibleLayers = getVisibleLayers();
-        for (MapMarker m : map().getMapMarkerList()) {
-            if (!visibleLayers.contains(m.getLayer())) continue;
-            double distance = Util.distanceBetween(m.getCoordinate(), pos);
-            if (distance < m.getRadius() * pixelWidth) {
-                ans.add(m);
-            }
-        }
-        return ans;
-    }
-
-    public JMapViewer map() {
-        return contentPanel.getViewer();
-    }
-
-    // Update which queries are visible after any checkBox has been changed
-    public void updateVisibility() {
-        SwingUtilities.invokeLater(() -> {
-            System.out.println("Recomputing visible queries");
-            for (Query q : QueryController.getInstance()) {
-                JCheckBox box = q.getCheckBox();
-                //Boolean state = box.isSelected();
-                q.setVisible(box.isSelected());
-            }
-            map().repaint();
-        });
-    }
-
-
-    public void handleQueryCreation(String queryString, Color color, JMapViewer map, TwitterSource twitterSource){
-        addQuery(new Query(queryString, color, map, twitterSource));
+    /**
+     * Creates a query with the specified parameters, and then delegates the insertion process.
+     * It also returns the query, thus notifying the panel that the specified query was added - a functionality which may be needed in future implementations
+     * @param queryString
+     * @param color
+     */
+    public Query handleQueryCreationAndReturnQuery(String queryString, Color color){
+        Query newQuery = new Query(queryString, color, map(), twitterSource);
+        addQuery(newQuery);
+        return newQuery;
     }
 
 
@@ -214,6 +163,92 @@ public class Application extends JFrame {
      */
     public void terminateQuery(Query query) {
         QueryController.getInstance().terminateQuery(query, twitterSource);
+    }
+
+
+    /**
+     * Helper Methods
+     */
+
+
+    /**
+     * Helper method used to draw markers
+     * @param markers
+     */
+    private void drawMarkers(List<MapMarker> markers){
+        MapMarker marker = markers.get(markers.size() - 1);
+        MapMarkerWithImage mapMarkerWithImage = (MapMarkerWithImage) marker;
+        String tweet = mapMarkerWithImage.getTweet();
+        String profilePictureURL = mapMarkerWithImage.getProfileImageUrl();
+        // TODO: Use the following method to set the text that appears at the mouse cursor
+        map().setToolTipText("<html><img src=" + profilePictureURL + " height=\"42\" width=\"42\">" + tweet + "</html>");
+    }
+
+
+    /**
+     * How big is a single pixel on the map?  We use this to compute which tweet markers
+     * are at the current most position.
+     * @param point
+     * @return distance between the center and the edge of the marker
+     */
+    private double pixelWidth(Point point) {
+        ICoordinate center = map().getPosition(point);
+        ICoordinate edge = map().getPosition(new Point(point.x + 1, point.y));
+        return Util.distanceBetweenSphericalCoordinates(center, edge);
+    }
+
+    /**
+     * Get those layers (of tweet markers) that are visible because their corresponding query is enabled
+     * @return The set of visible layers
+     */
+    private Set<Layer> getVisibleLayers() {
+        Set<Layer> ans = new HashSet<>();
+        for (Query q : QueryController.getInstance()) {
+            if (q.getVisible()) {
+                ans.add(q.getLayer());
+            }
+        }
+        return ans;
+    }
+
+    /**
+     * Get all the markers at the given map position, at the current map zoom setting
+     * @param pos
+     * @param pixelWidth
+     * @return The list of mapMarkers
+     */
+    private List<MapMarker> getMarkersCovering(ICoordinate pos, double pixelWidth) {
+        List<MapMarker> ans = new ArrayList<>();
+        Set<Layer> visibleLayers = getVisibleLayers();
+        for (MapMarker m : map().getMapMarkerList()) {
+            if (!visibleLayers.contains(m.getLayer())) continue;
+            double distance = Util.distanceBetweenSphericalCoordinates(m.getCoordinate(), pos);
+            if (distance < m.getRadius() * pixelWidth) {
+                ans.add(m);
+            }
+        }
+        return ans;
+    }
+
+
+    /**
+     * Update which queries are visible after any checkBox has been changed
+     */
+    public void updateVisibility() {
+        SwingUtilities.invokeLater(() -> {
+            System.out.println("Recomputing visible queries");
+            for (Query q : QueryController.getInstance()) {
+                JCheckBox box = q.getCheckBox();
+                //Boolean state = box.isSelected();
+                q.setVisible(box.isSelected());
+            }
+            map().repaint();
+        });
+    }
+
+    // Getters
+    public JMapViewer map() {
+        return contentPanel.getViewer();
     }
 
 

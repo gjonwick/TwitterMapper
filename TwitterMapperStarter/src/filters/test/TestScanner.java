@@ -26,6 +26,17 @@ public class TestScanner {
     }
 
     @Test
+    public void testOr() {
+        Scanner x = new Scanner("trick or treat");
+        assertTrue(x.peek().equals("trick"));
+        assertTrue(x.advance().equals("or"));
+        assertTrue(x.peek().equals("or"));
+        assertTrue(x.advance().equals("treat"));
+        assertTrue(x.peek().equals("treat"));
+        assertTrue(x.advance() == null);
+    }
+
+    @Test
     public void testAll() {
         String expected[] = { "trump", "and", "(", "evil",
                 "or", "not", "(", "good", ")", ")" };
@@ -33,7 +44,13 @@ public class TestScanner {
     }
 
     @Test
-    public void testOr() {
+    public void runTestAnd() {
+        String expected[] = { "trump", "and", "evil" };
+        runTest("trump and evil", expected);
+    }
+
+    @Test
+    public void runTestOr() {
         String expected[] = { "trump", "or", "evil" };
         runTest("trump or evil", expected);
     }

@@ -14,10 +14,13 @@ import java.util.Map;
  * Singleton that caches images loaded from twitter urls.
  */
 public class ImageCache {
-    private static ImageCache theInstance = new ImageCache();
+    private static ImageCache theInstance = null;
     private BufferedImage defaultImage;
 
     public static ImageCache getInstance() {
+        if(theInstance == null){
+            theInstance = new ImageCache();
+        }
         return theInstance;
     }
 
@@ -41,19 +44,16 @@ public class ImageCache {
         BufferedImage ans = cache.get(url);
         if (ans == null) {
             cache.put(url, defaultImage);
-            Thread t = new Thread() {
-                @Override
-                public void run() {
-                    BufferedImage ans = Util.imageFromURL(url);
-                    SwingUtilities.invokeLater(new Runnable() {
-                        @Override
-                        public void run() {
-                            cache.put(url, ans);
-                        }
-                    });
+            Thread t = new Thread(() -> {
+                BufferedImage ans1 = Util.imageFromURL(url);
+                SwingUtilities.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        cache.put(url, ans1);
+                    }
+                });
 
-                }
-            };
+            });
             t.run();
         }
     }

@@ -6,9 +6,11 @@ import twitter4j.GeoLocation;
 import twitter4j.Status;
 
 import javax.imageio.ImageIO;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Random;
 
 /**
  * Helpful methods that don't clearly fit anywhere else.
@@ -17,6 +19,7 @@ public class Util {
 
     private static final int RADIUS = 6371000;   // radius of earth in metres
     public static BufferedImage defaultImage = imageFromURL("http://png-2.findicons.com/files/icons/1995/web_application/48/smiley.png");
+    private static final Random random = new Random();
 
     /**
      * Find distance in metres between two lat/lon points
@@ -25,8 +28,8 @@ public class Util {
      * @param p2  second point
      * @return distance between p1 and p2 in metres
      */
-    public static double distanceBetween(ICoordinate p1, ICoordinate p2) {
-        double lat1 = p1.getLat() / 180.0 * Math.PI;
+    public static double distanceBetweenSphericalCoordinates(ICoordinate p1, ICoordinate p2) {
+        double lat1 = p1.getLat( ) / 180.0 * Math.PI;
         double lat2 = p2.getLat() / 180.0 * Math.PI;
         double deltaLon = (p2.getLon() - p1.getLon()) / 180.0 * Math.PI;
         double deltaLat = (p2.getLat() - p1.getLat()) / 180.0 * Math.PI;
@@ -39,33 +42,38 @@ public class Util {
         return c * RADIUS;
     }
 
-
-    public static GeoLocation statusLocation(Status status) {
-        return new GeoLocation(statusLatitude(status), statusLongitude(status));
-    }
-
-    public static Coordinate GeoLocationToCoordinate(GeoLocation loc) {
-        return new Coordinate(loc.getLatitude(), loc.getLongitude());
-    }
+//    public static GeoLocation statusLocation(Status status) {
+//        return new GeoLocation(statusLatitude(status), statusLongitude(status));
+//    }
+//
+//    public static Coordinate GeoLocationToCoordinate(GeoLocation loc) {
+//        return new Coordinate(loc.getLatitude(), loc.getLongitude());
+//    }
 
     public static Coordinate statusCoordinate(Status status) {
         return new Coordinate(statusLatitude(status), statusLongitude(status));
     }
 
-    private static double statusLatitude(Status status){
+    public static double statusLatitude(Status status){
         GeoLocation bottomRight = status.getPlace().getBoundingBoxCoordinates()[0][0];
         GeoLocation topLeft = status.getPlace().getBoundingBoxCoordinates()[0][2];
         return (bottomRight.getLatitude() + topLeft.getLatitude())/2;
     }
 
-    private static double statusLongitude(Status status){
+    public static double statusLongitude(Status status){
         GeoLocation bottomRight = status.getPlace().getBoundingBoxCoordinates()[0][0];
         GeoLocation topLeft = status.getPlace().getBoundingBoxCoordinates()[0][2];
         return (bottomRight.getLongitude() + topLeft.getLongitude())/2;
     }
 
 
-
+    public static Color getRandomColor() {
+        // Pleasant colors: https://stackoverflow.com/questions/4246351/creating-random-colour-in-java#4246418
+        final float hue = random.nextFloat();
+        final float saturation = (random.nextInt(2000) + 1000) / 10000f;
+        final float luminance = 0.9f;
+        return Color.getHSBColor(hue, saturation, luminance);
+    }
 
     public static BufferedImage imageFromURL(String url) {
         try {

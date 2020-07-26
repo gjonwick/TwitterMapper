@@ -34,8 +34,9 @@ public class TestFilters {
         Filter f = new AndFilter(new BasicFilter("fred"), new BasicFilter("Flintstone"));
         assertTrue(f.matches(makeStatus("Fred Flintstone")));
         assertTrue(f.matches(makeStatus("fred Flintstone")));
-        assertFalse(f.matches(makeStatus("Red Skelton")));
+        assertFalse(f.matches(makeStatus("Fred Fredi")));
         assertFalse(f.matches(makeStatus("red Skelton")));
+        assertFalse(f.matches(makeStatus("fred dragon")));
     }
 
     @Test
@@ -43,6 +44,8 @@ public class TestFilters {
         Filter f = new OrFilter(new BasicFilter("fred"), new BasicFilter("dragon"));
         assertTrue(f.matches(makeStatus("Fred Flintstone")));
         assertTrue(f.matches(makeStatus("fred Flintstone")));
+        assertTrue(f.matches(makeStatus("fred dragon")));
+        assertTrue(f.matches(makeStatus("skeleton dragon")));
         assertFalse(f.matches(makeStatus("Red Skelton")));
         assertTrue(f.matches(makeStatus("red dragon")));
     }

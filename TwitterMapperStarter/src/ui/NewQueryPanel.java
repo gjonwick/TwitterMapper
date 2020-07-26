@@ -1,28 +1,21 @@
 package ui;
 
-import query.Query;
-import query.QueryDisplay;
+import util.Util;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Random;
 
 /**
  * A UI panel for entering new queries.
+ * UI initialization, and notifying the Application about the creation of a query
  */
 public class NewQueryPanel extends JPanel {
     private final JTextField newQuery;
     private final JPanel colorSetter;
     private final Application app;
-    private final Random random;
 
-    private void initListeners(){
-        
-    }
 
     public NewQueryPanel(Application app) {
         this.app = app;
@@ -30,7 +23,6 @@ public class NewQueryPanel extends JPanel {
 
         newQuery = new JTextField(10);
         JLabel queryLabel = new JLabel("Enter Search: ");
-        random = new Random();
 
         setLayout(new javax.swing.BoxLayout(this, javax.swing.BoxLayout.Y_AXIS));
 
@@ -50,7 +42,7 @@ public class NewQueryPanel extends JPanel {
         add(Box.createRigidArea(new Dimension(5, 5)));
 
         JLabel colorLabel = new JLabel("Select Color: ");
-        colorSetter.setBackground(getRandomColor());
+        colorSetter.setBackground(Util.getRandomColor());
 
         c.gridwidth = GridBagConstraints.RELATIVE;
         c.fill = GridBagConstraints.NONE;
@@ -105,19 +97,12 @@ public class NewQueryPanel extends JPanel {
     }
 
     private void addQuery(String newQueryString) {
-        app.handleQueryCreation(newQueryString, colorSetter.getBackground(), app.map(), app.getTwitterSource());
+        app.handleQueryCreationAndReturnQuery(newQueryString, colorSetter.getBackground());
     }
 
 
     private void updateNextQueryColor(){
-        colorSetter.setBackground(getRandomColor());
+        colorSetter.setBackground(Util.getRandomColor());
     }
 
-    public Color getRandomColor() {
-        // Pleasant colors: https://stackoverflow.com/questions/4246351/creating-random-colour-in-java#4246418
-        final float hue = random.nextFloat();
-        final float saturation = (random.nextInt(2000) + 1000) / 10000f;
-        final float luminance = 0.9f;
-        return Color.getHSBColor(hue, saturation, luminance);
-    }
 }

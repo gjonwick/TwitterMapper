@@ -1,4 +1,6 @@
-package ui;
+package program;
+
+import ui.Application;
 
 public class Program {
         /**
