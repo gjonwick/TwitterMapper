@@ -77,7 +77,7 @@ public class UtilTest {
     @Test(dataProvider = "statusCoordinateDataProvider")
     public void testStatusCoordinate(double lat1, double long1, double lat2, double long2, double lat3, double long3, double statusLatitude, double statusLongitude) {
         Place mockPlace = makePlace(lat1, long1, lat2, long2, lat3, long3);
-        Status mockStatus = makeStatus("testStatus", mockPlace);
+        Status mockStatus = makeStatus(mockPlace);
         Coordinate coordinate = Util.statusCoordinate(mockStatus);
         assertNotNull(coordinate);
         assertEquals(coordinate.getLat(), statusLatitude);
@@ -87,10 +87,8 @@ public class UtilTest {
     @Test(dataProvider = "statusLatitudeDataProvider")
     public void statusLatitude(double lat1, double long1, double lat2, double long2, double lat3, double long3, double statusLatitude){
         // Arrange
-        GeoLocation bottomRight = mock(GeoLocation.class);
-        GeoLocation topLeft = mock(GeoLocation.class);
         Place mockPlace = makePlace(lat1, long1, lat2, long2, lat3, long3);
-        Status mockStatus = makeStatus("testStatus", mockPlace);
+        Status mockStatus = makeStatus(mockPlace);
 
         // Assert
         assertEquals(Util.statusLatitude(mockStatus), statusLatitude);
@@ -99,10 +97,8 @@ public class UtilTest {
     @Test(dataProvider = "statusLongitudeDataProvider")
     public void statusLongitude(double lat1, double long1, double lat2, double long2, double lat3, double long3, double statusLongitude){
         // Arrange
-        GeoLocation bottomRight = mock(GeoLocation.class);
-        GeoLocation topLeft = mock(GeoLocation.class);
         Place mockPlace = makePlace(lat1, long1, lat2, long2, lat3, long3);
-        Status mockStatus = makeStatus("testStatus", mockPlace);
+        Status mockStatus = makeStatus(mockPlace);
 
         // Assert
         assertEquals(Util.statusLongitude(mockStatus), statusLongitude);
@@ -114,7 +110,7 @@ public class UtilTest {
         assertNotNull(img);
     }
 
-    private Status makeStatus(String text, Place mockPlace)
+    private Status makeStatus(Place mockPlace)
     {
         return new Status() {
             @Override
@@ -129,7 +125,7 @@ public class UtilTest {
 
             @Override
             public String getText() {
-                return text;
+                return "testStatus";
             }
 
             @Override

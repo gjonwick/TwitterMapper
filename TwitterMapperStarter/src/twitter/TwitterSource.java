@@ -16,7 +16,7 @@ public abstract class TwitterSource extends Observable {
     protected Set<String> terms;
 
     protected TwitterSource() {
-        doLogging = true;;
+        doLogging = true;
         terms = new HashSet<>();
     }
 

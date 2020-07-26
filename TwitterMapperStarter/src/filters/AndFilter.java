@@ -3,8 +3,6 @@ package filters;
 import twitter4j.Status;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class AndFilter implements Filter {
 

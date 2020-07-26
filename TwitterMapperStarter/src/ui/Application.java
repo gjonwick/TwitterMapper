@@ -36,9 +36,6 @@ public class Application extends JFrame {
     // The provider of the tiles for the map, we use the Bing source
     private BingAerialTileSource bing;
 
-    // All of the active queries
-    private List<Query> queries;
-
     // The source of tweets, a TwitterSource, either live or playback
     private TwitterSource twitterSource;
 
@@ -109,7 +106,7 @@ public class Application extends JFrame {
                 List<MapMarker> markers = getMarkersCovering(pos, pixelWidth(p));
 
                 if (!markers.isEmpty()) {
-                    drawMarkers(markers);
+                    drawToolTip(markers);
                 }
             }
         });
@@ -136,8 +133,8 @@ public class Application extends JFrame {
     /**
      * Creates a query with the specified parameters, and then delegates the insertion process.
      * It also returns the query, thus notifying the panel that the specified query was added - a functionality which may be needed in future implementations
-     * @param queryString
-     * @param color
+     * @param queryString the queryString specified by the user
+     * @param color the randomly generated color of the queryMarker
      */
     public Query handleQueryCreationAndReturnQuery(String queryString, Color color){
         Query newQuery = new Query(queryString, color, map(), twitterSource);
@@ -167,15 +164,10 @@ public class Application extends JFrame {
 
 
     /**
-     * Helper Methods
-     */
-
-
-    /**
-     * Helper method used to draw markers
+     * 
      * @param markers
      */
-    private void drawMarkers(List<MapMarker> markers){
+    private void drawToolTip(List<MapMarker> markers){
         MapMarker marker = markers.get(markers.size() - 1);
         MapMarkerWithImage mapMarkerWithImage = (MapMarkerWithImage) marker;
         String tweet = mapMarkerWithImage.getTweet();
@@ -188,8 +180,8 @@ public class Application extends JFrame {
     /**
      * How big is a single pixel on the map?  We use this to compute which tweet markers
      * are at the current most position.
-     * @param point
-     * @return distance between the center and the edge of the marker
+     * @param point mouse pointer coordinates
+     * @return distance between the center and the edge of the pixel
      */
     private double pixelWidth(Point point) {
         ICoordinate center = map().getPosition(point);
@@ -213,8 +205,8 @@ public class Application extends JFrame {
 
     /**
      * Get all the markers at the given map position, at the current map zoom setting
-     * @param pos
-     * @param pixelWidth
+     * @param pos current position
+     * @param pixelWidth the width of the pixel
      * @return The list of mapMarkers
      */
     private List<MapMarker> getMarkersCovering(ICoordinate pos, double pixelWidth) {
@@ -251,8 +243,4 @@ public class Application extends JFrame {
         return contentPanel.getViewer();
     }
 
-
-    public TwitterSource getTwitterSource() {
-        return twitterSource;
-    }
 }

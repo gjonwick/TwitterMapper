@@ -1,12 +1,9 @@
 package ui;
 
-import javafx.scene.layout.Pane;
 import query.Query;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * The panel representing an existing query.
@@ -15,12 +12,11 @@ import java.awt.event.ActionListener;
  */
 public class ListedQueryPanel extends JPanel {
 
-    private JPanel colorPanel;
     private JButton removeButton;
     private JCheckBox checkBox;
-    private Query query;
-    private ContentPanel parentPanel;
-    private Application app;
+    private final Query query;
+    private final ContentPanel parentPanel;
+    private final Application app;
 
     public ListedQueryPanel(Query query, ContentPanel parentPanel, Application app) {
         this.query = query;
@@ -38,7 +34,7 @@ public class ListedQueryPanel extends JPanel {
     }
 
     public void addColorPanel(GridBagConstraints gridConstraints){
-        colorPanel = new JPanel();
+        JPanel colorPanel = new JPanel();
         colorPanel.setBackground(query.getColor());
         colorPanel.setPreferredSize(new Dimension(30, 30));
         this.add(colorPanel, gridConstraints);
@@ -69,7 +65,7 @@ public class ListedQueryPanel extends JPanel {
         if(removeButton != null){
             removeButton.addActionListener(e -> {
                 app.terminateQuery(query);
-                parentPanel.getExistingQueryList().remove(this);
+                parentPanel.removeFromExistingQueryList(this);
                 parentPanel.revalidate();
             });
         }
@@ -78,18 +74,6 @@ public class ListedQueryPanel extends JPanel {
             checkBox.addActionListener(e -> app.updateVisibility());
         }
 
-    }
-
-    public JPanel getColorPanel() {
-        return colorPanel;
-    }
-
-    public JButton getRemoveButton() {
-        return removeButton;
-    }
-
-    public JCheckBox getCheckBox() {
-        return checkBox;
     }
 
     public Query getQuery() {

@@ -1,7 +1,6 @@
 package twitter;
 
 import twitter4j.*;
-import twitter4j.conf.ConfigurationBuilder;
 import util.Logger;
 
 /**

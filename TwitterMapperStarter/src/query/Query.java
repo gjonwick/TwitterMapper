@@ -4,6 +4,7 @@ import filters.Filter;
 import org.openstreetmap.gui.jmapviewer.Coordinate;
 import org.openstreetmap.gui.jmapviewer.JMapViewer;
 import org.openstreetmap.gui.jmapviewer.Layer;
+import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker;
 import twitter4j.Status;
 import twitter4j.User;
 import ui.MapMarkerWithImage;
@@ -11,6 +12,8 @@ import util.Util;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -25,7 +28,7 @@ public class Query implements Observer, DisplayElement {
     // The map on which to display markers when the query matches
     private final JMapViewer map;
     // Each query has its own "layer" so they can be turned on and off all at once
-    private Layer layer;
+    private final Layer layer;
     // The color of the outside area of the marker
     private final Color color;
     // The string representing the filter for this query
@@ -35,12 +38,12 @@ public class Query implements Observer, DisplayElement {
     // The checkBox in the UI corresponding to this query (so we can turn it on and off and delete it)
     private JCheckBox checkBox;
 
-    private Observable subject;
+    private final Observable subject;
 
     // Current Status
     private Status status;
 
-    private MapMarkerWithImage mapMarkerWithImage;
+    private List<MapMarker> markers;
 
     public Query(String queryString, Color color, JMapViewer map, Observable subject) {
         this.queryString = queryString;
@@ -49,6 +52,7 @@ public class Query implements Observer, DisplayElement {
         this.layer = new Layer(queryString);
         this.map = map;
         this.subject = subject;
+        markers = new ArrayList<>();
         subject.addObserver(this);
     }
 
@@ -64,7 +68,7 @@ public class Query implements Observer, DisplayElement {
      */
     public void terminate() {
         layer.setVisible(false);
-        map.removeMapMarker(mapMarkerWithImage);
+        removeMarkers();
         subject.deleteObserver(this);
     }
 
@@ -72,7 +76,7 @@ public class Query implements Observer, DisplayElement {
     public void update(Observable o, Object arg) {
         if(arg instanceof Status){
             status = (Status) arg;
-            mapMarkerWithImage = createNewMapMarker();
+            markers.add(createNewMapMarker());
             if(getFilter().matches(status)){
                 display();
             }
@@ -91,9 +95,18 @@ public class Query implements Observer, DisplayElement {
         return new MapMarkerWithImage(getLayer(), coordinate, getColor(), profileImageURL, tweet);
     }
 
+    /**
+     * Remove markers
+     */
+    private void removeMarkers(){
+        for(MapMarker mapMarker : markers){
+            map.removeMapMarker(mapMarker);
+        }
+    }
+
     @Override
     public void display() {
-        map.addMapMarker(mapMarkerWithImage);
+        map.addMapMarker(markers.get(markers.size() - 1));
     }
 
     public Color getColor() {
@@ -123,12 +136,13 @@ public class Query implements Observer, DisplayElement {
         return map;
     }
 
+    public List<MapMarker> getMarkers() {
+        return markers;
+    }
+
     public Status getStatus() {
         return status;
     }
 
-    public MapMarkerWithImage getMapMarkerWithImage() {
-        return mapMarkerWithImage;
-    }
 }
 

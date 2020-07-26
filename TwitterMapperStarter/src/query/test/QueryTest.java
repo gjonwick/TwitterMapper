@@ -5,45 +5,48 @@ import org.testng.annotations.Test;
 import query.Query;
 import twitter4j.*;
 
-import javax.swing.*;
 import java.awt.*;
 import java.util.Date;
 import java.util.Observable;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 import static org.testng.Assert.*;
 
 public class QueryTest {
 
-    TestObservable to = new TestObservable();
+
     Color mockColor = mock(Color.class);
 
     @Test
     public void testObservableConnection(){
-        Query query = new Query("test", mockColor, new JMapViewer(), to);
+        TestObservable to = new TestObservable();
+        new Query("test", mockColor, new JMapViewer(), to);
         assertTrue(to.countObservers() > 0);
     }
 
     @Test
     public void testTerminate() {
+        TestObservable to = new TestObservable();
         Query query = new Query("test", mockColor, new JMapViewer(), to);
-        to.handleUpdate(makeStatus("testStatus"));
+        to.handleUpdate(makeStatus());
+        assertEquals(to.countObservers(), 1);
         query.terminate();
         assertFalse(query.getVisible());
-        assertTrue(query.getMap().getMapMarkerList().size() == 0);
-        assertTrue(to.countObservers() == 0);
+        assertEquals(query.getMap().getMapMarkerList().size(), 0);
+        assertEquals(to.countObservers(), 0);
     }
 
     @Test
     public void testUpdate() {
+        TestObservable to = new TestObservable();
         Query query = new Query("test", mockColor, new JMapViewer(), to);
-        to.handleUpdate(makeStatus("testStatus"));
-        assertNotNull(query.getMapMarkerWithImage());
+        to.handleUpdate(makeStatus());
+        assertNotNull(query.getMarkers().get(query.getMarkers().size() - 1));
         assertTrue(query.getMap().getMapMarkerList().size() > 0);
-        assertTrue(query.getMap().getMapMarkerList().contains(query.getMapMarkerWithImage()));
+        assertTrue(query.getMap().getMapMarkerList().contains(query.getMarkers().get(query.getMarkers().size() - 1)));
     }
 
-    private class TestObservable extends Observable {
+    private static class TestObservable extends Observable {
         public TestObservable() {}
 
         public void handleUpdate(Status status) {
@@ -52,7 +55,7 @@ public class QueryTest {
         }
     }
 
-    private Status makeStatus(String text) {
+    private Status makeStatus() {
         return new Status() {
             @Override
             public Date getCreatedAt() {
@@ -66,7 +69,7 @@ public class QueryTest {
 
             @Override
             public String getText() {
-                return text;
+                return "testStatus";
             }
 
             @Override

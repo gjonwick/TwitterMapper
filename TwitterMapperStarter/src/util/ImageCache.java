@@ -46,15 +46,10 @@ public class ImageCache {
             cache.put(url, defaultImage);
             Thread t = new Thread(() -> {
                 BufferedImage ans1 = Util.imageFromURL(url);
-                SwingUtilities.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        cache.put(url, ans1);
-                    }
-                });
+                SwingUtilities.invokeLater(() -> cache.put(url, ans1));
 
             });
-            t.run();
+            t.start();
         }
     }
 

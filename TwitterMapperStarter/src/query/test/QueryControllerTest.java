@@ -19,7 +19,7 @@ import static org.testng.Assert.*;
 
 public class QueryControllerTest {
 
-    private QueryController queryController = QueryController.getInstance();
+    private final QueryController queryController = QueryController.getInstance();
 
     @Mock
     private TwitterSource mockedTwitterSource;
@@ -30,8 +30,8 @@ public class QueryControllerTest {
     @Mock
     private ContentPanel mockedContentPanel;
 
-    private String mockString1 = "mockValue1";
-    private String mockString2 = "mockValue2";
+    private final String mockString1 = "mockValue1";
+    private final String mockString2 = "mockValue2";
 
     Filter testFilter = new Filter() {
         @Override

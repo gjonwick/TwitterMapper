@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  * A simple scanner for a language consisting of words and parentheses.
  */
 public class Scanner {
-    private List<String> tokens;
+    private final List<String> tokens;
 
     public Scanner(String input) {
         // This pattern matches words ([a-zA-Z]+), left and right parens, and whitespace

@@ -74,6 +74,9 @@ public class ContentPanel extends JPanel {
     }
 
 
+    public void removeFromExistingQueryList(ListedQueryPanel panel){
+        existingQueryList.remove(panel);
+    }
 
     public JMapViewer getViewer() {
         return map;

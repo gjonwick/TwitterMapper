@@ -12,7 +12,11 @@ public class QueryController implements Iterable<Query>{
 
     public static QueryController getInstance(){
         if(instance == null){
-            instance = new QueryController();
+            synchronized (QueryController.class){
+                if(instance == null){
+                    instance = new QueryController();
+                }
+            }
         }
         return instance;
     }
@@ -55,9 +59,10 @@ public class QueryController implements Iterable<Query>{
     }
 
     public void terminateQuery(Query query, TwitterSource twitterSource){
+        query.terminate();
         queries.remove(query);
         twitterSource.setFilterTerms(getQueryTerms());
-        query.terminate();
+
     }
 
 }
